@@ -146,7 +146,7 @@ dmypy.json
 /run_tv.py
 
 /scripts/long_term_forecast/ETT_tv_script/
-/dataset/
+
 data_factory_all.py
 data_loader_all.py
 /scripts/short_term_forecast/tv_script/
@@ -158,7 +158,7 @@ data_loader_all.py
 /utils/self_tools.py
 /scripts/exp_scripts/
 
-checkpoints/
+
 results/
 result_long_term_forecast.txt
 result_anomaly_detection.txt
