@@ -65,10 +65,9 @@ argsDict={
     'loss': 'MSE',
     'lradj': 'type1',
     'use_amp': False,
-    'use_gpu': True,
-    'gpu': 0,
+    # 'use_gpu': True,
+    'use_gpu': False,
     'use_multi_gpu': False,
-    'devices': '0,1,2,3',
     'p_hidden_dims': [128, 128],
     'p_hidden_layers': 2,
     'seed': 2,
@@ -93,25 +92,25 @@ def load_model(args, exp):
 
 model  = load_model(args, exp)
 
-
 # 将输入的list转换为tensor形式
 def list_to_input_tensor(input_list):
-    input_array = np.array(input_list)
-    if len(input_array.shape)<3:
-        input_array = np.expand_dims(input_array, axis=0)
-        sample = torch.Tensor(input_array).to(exp.device)
+    input = np.array(input_list)
+    if len(input.shape)<3:
+        input = np.expand_dims(input, axis=0)
+        input = torch.Tensor(input).to(exp.device)
     else:
-        sample = torch.Tensor(input_array).to(exp.device)
-    return sample
+        input = torch.Tensor(input).to(exp.device)
+    return input
 
 def output_tensor_to_list(output_tensor):
     if output_tensor.device.type == 'cuda':
         output = output_tensor.detach().to('cpu')
     else:
         output = output_tensor
-    if inference_data.scale and exp.args.inverse:
-        shape = output.shape
-        inference_data.inverse_transform(outputs.reshape(shape[0] * shape[1], -1)).reshape(shape)
+    # * Not using inverse transform on dataset level
+    # if inference_data.scale and exp.args.inverse:
+    #     shape = output.shape
+    #     inference_data.inverse_transform(outputs.reshape(shape[0] * shape[1], -1)).reshape(shape)
     if len(output.shape)==3:
         output = output.reshape(output.shape[1],output.shape[2])
     return output.tolist()
@@ -121,8 +120,9 @@ inference_data, inference_loader = exp._get_data(flag='test')
 
 # 获取数据
 #   输入数据：sample（1，24，6）
-#   输出数据：outputs（1，30，1）
-#   回归标签：label（1，30，1）
+#   输出数据：outputs（1，1，6）
+#   回归标签：label（1，2，6） - 包含label_len与pred_len
+
 index=1
 sample_list = inference_data[index][0].tolist()
 label_list = inference_data[index][1].tolist()
